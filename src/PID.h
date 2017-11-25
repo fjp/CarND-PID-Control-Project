@@ -1,8 +1,6 @@
 #ifndef PID_H
 #define PID_H
 
-#include <uWS/uWS.h>
-
 class PID {
 public:
   /*
@@ -44,15 +42,6 @@ public:
   */
   double TotalError();
 
-  /*
-  * Find tuned PID parameters.
-  */
-  void Twiddle(double tol, uWS::WebSocket<uWS::SERVER> ws);
-
-  /*
-  * Reset the simulator.
-  */
-  void Restart(uWS::WebSocket<uWS::SERVER> ws);
 };
 
 #endif /* PID_H */

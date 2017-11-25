@@ -2,6 +2,7 @@
 #include <iostream>
 #include "json.hpp"
 #include "PID.h"
+#include "Twiddle.h"
 #include <math.h>
 #include <time.h>
 
@@ -34,13 +35,14 @@ int main()
   uWS::Hub h;
 
   PID pid;
+  Twiddle twiddle = Twiddle();
   // TODO: Initialize the pid variable.
   pid.Init(10, 0.1, 100.0);
 
   // Initialize the timer
   double current_time = 0.0, previous_time = 0.0, dt = 0.0;
 
-  h.onMessage([&pid,&current_time,&previous_time,&dt](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&pid,&twiddle,&current_time,&previous_time,&dt](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     std::cout << "dt: " << dt << std::endl;
 
     // "42" at the start of the message means there's a websocket message event.
@@ -58,29 +60,35 @@ int main()
           double speed = std::stod(j[1]["speed"].get<std::string>());
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
           double steer_value;
+
+          twiddle.err += pow(cte, 2);
+          if (abs(cte) > 2.5 || sum(twiddle.dp) > twiddle.tolerance) {
+            twiddle.Restart(ws);
+            pid.Init(10, 0.1, 100.0);
+          }
+          else {
+            twiddle.step++;
+          }
+
+          // Update the time difference
+          current_time = clock();
+          dt = (current_time - previous_time)/CLOCKS_PER_SEC;
+          previous_time = current_time;
+
           /*
           * TODO: Calcuate steering value here, remember the steering value is
           * [-1, 1].
           * NOTE: Feel free to play around with the throttle and speed. Maybe use
           * another PID controller to control the speed!
           */
-
-          current_time = clock();
-          dt = (current_time - previous_time)/CLOCKS_PER_SEC;
-          previous_time = current_time;
-
-          if (abs(cte) > 2.5) {
-            pid.Restart(ws);
-          }
-
           pid.UpdateError(cte, dt);
           steer_value = pid.TotalError();
           if (steer_value < -1) {
-              steer_value = -1;
-            }
+            steer_value = -1;
+          }
           if (1 < steer_value) {
-              steer_value = 1;
-            }
+            steer_value = 1;
+          }
 
 
 
