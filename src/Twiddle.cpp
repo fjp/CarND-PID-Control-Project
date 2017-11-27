@@ -1,25 +1,29 @@
 #include "Twiddle.h"
 #include <iostream>
 #include <limits>
+#include <algorithm>
+#include <numeric>
+#include <iterator>
+#include <vector>
 
 using namespace std;
 
-Twiddle::Twiddle() {
-  double p[3] = {0.0, 0.0, 0.0};
-  double dp[3] = {1.0, 1.0, 1.0};
+Twiddle::Twiddle() : p(3) {
+  //p = {0.0, 0.0, 0.0};
+  //dp = {1.0, 1.0, 1.0};
 
-  double best_err = std::numeric_limits<double>::max();
-  double err = 0.0;
+  best_err = std::numeric_limits<double>::max();
 
-  double tolerance = 0.2;
-  int it = 0;
-  int step = 0;
-  int max_steps = 200;
-  int i = 0;
+  err = 0.0;
 
-  bool initialize = true;
-  bool increment = true;
-  bool revert = true;
+  tolerance = 0.2;
+  it = 0;
+  step = 0;
+  iterations = 200;
+  i = 0;
+
+  initialize = true;
+  increment = true;
 }
 
 Twiddle::~Twiddle() {}
@@ -30,61 +34,72 @@ void Twiddle::Restart(uWS::WebSocket<uWS::SERVER> ws){
 }
 
 
-double[] Twiddle::Tune(double cte) {
+void Twiddle::Tune(double cte, std::vector<double> &p) {
   //x_trajectory, y_trajectory, best_err = run(robot, p)
 
-  if (sum(dp) > tolerance) {
+  //cout << "first best_err " << best_err << endl;
 
-    err += cte*cte;
+  if (true == initialize) {
+    err = 0.0;
+    p.at(i) += dp.at(i);
+    i = (i + 1) % 3;
+    increment = true;
+    initialize = false;
+    cout << "Init Twiddle i = " << i << endl;
+  }
 
-    // for i in range(len(p)) {
-    if (step > max_steps) {
+  // Update the curren terror
+  err += cte*cte;
+  step++;
+
+  // for i in range(len(p)) {
+  if (step > iterations) {
+    double sum = std::accumulate(p.begin(), p.end(), 0, plus<double>());
+    cout << "Sum " << sum << endl;
+    if (sum > tolerance) {
       cout << "Iteration " << it << ", best error = " << best_err << endl;
 
-      if (true == initialize) {
-        p[i] += dp[i];
-        i = (i + 1) % 3;
-        step = 0;
-        initialize = false;
-        increment = true;
-        revert = true;
-      }
+      step = 0;
 
       //x_trajectory, y_trajectory, err = run(robot, p)
 
+      if (err < best_err && increment) {
+          best_err = err;
+          dp.at(i) *= 1.1;
+          err = 0;
+          initialize = true;
+
+          cout << "err < best_err && increment = " << increment << endl;
+      }
       else {
-        if (err < best_err && increment) {
-            best_err = err;
-            dp[i] *= 1.1;
-            err = 0;
-            initialize = true;
-        }
-        else {
-          if (revert) {
-            p[i] -= 2 * dp[i]
-            revert = false;
-            increment = false;
-          }
+
+        if (err > 0.0 && increment == true) {
+          p.at(i) -= 2.0 * dp.at(i);
+          err = 0.0;
+          increment = false;
+          cout << "err > 0.0 && increment = " << increment << endl;
+        } else {
           //robot = make_robot()
           //x_trajectory, y_trajectory, err = run(robot, p)
 
           if (err < best_err) {
-              best_err = err
-              dp[i] *= 1.1
-              err = 0
-              increment = false;
-              initialize = true;
+              best_err = err;
+              dp.at(i) *= 1.1;
+
+              cout << "err < best_err" << endl;
           }
           else {
-              p[i] += dp[i]
-              dp[i] *= 0.9
+              p.at(i) += dp.at(i);
+              dp.at(i) *= 0.9;
+
+              cout << "else" << endl;
           }
+          err = 0.0;
+          initialize = true;
         }
       }
     }
-
-    it += 1
-    }
-  return p
+    it += 1;
+  }
 
 }

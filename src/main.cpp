@@ -37,13 +37,14 @@ int main()
   PID pid;
   Twiddle twiddle = Twiddle();
   // TODO: Initialize the pid variable.
-  pid.Init(10, 0.1, 100.0);
+  std::vector<double> p { std::vector<double>{10.0, 0.1, 100.0} };
+  pid.Init(p.at(0), p.at(1), p.at(2));
 
   // Initialize the timer
   double current_time = 0.0, previous_time = 0.0, dt = 0.0;
 
-  h.onMessage([&pid,&twiddle,&current_time,&previous_time,&dt](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
-    std::cout << "dt: " << dt << std::endl;
+  h.onMessage([&pid,&twiddle,&p,&current_time,&previous_time,&dt](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+    //std::cout << "dt: " << dt << std::endl;
 
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -61,13 +62,11 @@ int main()
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
           double steer_value;
 
-          twiddle.err += pow(cte, 2);
-          if (abs(cte) > 2.5 || sum(twiddle.dp) > twiddle.tolerance) {
+          twiddle.Tune(cte, p);
+          if (abs(cte) > 2.5) {
             twiddle.Restart(ws);
-            pid.Init(10, 0.1, 100.0);
-          }
-          else {
-            twiddle.step++;
+            pid.Init(p.at(0), p.at(1), p.at(2));
+            std::cout << "p " << p.at(0) << p.at(1) << p.at(2)  << std::endl;
           }
 
           // Update the time difference
@@ -93,13 +92,13 @@ int main()
 
 
           // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+          //std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = 0.8;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
+          //std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }
       } else {

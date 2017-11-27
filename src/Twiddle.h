@@ -23,10 +23,29 @@ public:
   int iterations;
 
   /*
+  * Index for parameter array
+  */
+  int i;
+
+  /*
+  * Twiddle iteration
+  */
+  int it;
+
+  /*
   * Parameters and delta changes
   */
-  double p[3];
-  double dp[3];
+  //std::vector<double> p(3);
+  //std::vector<double> dp(3);
+  std::vector<double> p { std::vector<double>{0.0, 0.0, 0.0} };
+  std::vector<double> dp { std::vector<double>{1.0, 1.0, 1.0} };
+
+  /*
+  * Controlles twiddle algorithm
+  */
+  bool initialize;
+  bool increment;
+
 
 
   /*
@@ -48,7 +67,7 @@ public:
   /*
   * Find tuned PID parameters
   */
-  double[] Tune();
+  void Tune(double cte, std::vector<double> &p);
 };
 
 #endif /* TWIDDLE_H */
