@@ -20,7 +20,7 @@ Twiddle::Twiddle() : p(3) {
   it = 0;
   step = 0;
   iterations = 200;
-  i = 0;
+  i = -1;
 
   initialize = true;
   increment = true;
@@ -40,25 +40,32 @@ void Twiddle::Tune(double cte, std::vector<double> &p) {
   //cout << "first best_err " << best_err << endl;
 
   if (true == initialize) {
+    // for i in range(len(p)) {
+    i = (i + 1) % 3;
     err = 0.0;
     p.at(i) += dp.at(i);
-    i = (i + 1) % 3;
     increment = true;
     initialize = false;
-    cout << "Init Twiddle i = " << i << endl;
+    if (0 == i)
+      cout << "Init Twiddle, tuning Kp" << endl;
+    else if (1 == i)
+      cout << "Init Twiddle, tuning Ki" << endl;
+    else if (2 == i)
+      cout << "Init Twiddle, tuning Kd" << endl;
   }
 
-  // Update the curren terror
+  // Update the current error
   err += cte*cte;
   step++;
 
-  // for i in range(len(p)) {
   if (step > iterations) {
-    double sum = std::accumulate(p.begin(), p.end(), 0, plus<double>());
+    // while sum(dp) > tol
+    double sum = std::accumulate(dp.begin(), dp.end(), 0, plus<double>());
     cout << "Sum " << sum << endl;
     if (sum > tolerance) {
       cout << "Iteration " << it << ", best error = " << best_err << endl;
 
+      err = err/step;
       step = 0;
 
       //x_trajectory, y_trajectory, err = run(robot, p)
@@ -66,10 +73,10 @@ void Twiddle::Tune(double cte, std::vector<double> &p) {
       if (err < best_err && increment) {
           best_err = err;
           dp.at(i) *= 1.1;
-          err = 0;
+          err = 0.0;
           initialize = true;
 
-          cout << "err < best_err && increment = " << increment << endl;
+          cout << "err < best_err --> increment" << endl;
       }
       else {
 
@@ -77,7 +84,7 @@ void Twiddle::Tune(double cte, std::vector<double> &p) {
           p.at(i) -= 2.0 * dp.at(i);
           err = 0.0;
           increment = false;
-          cout << "err > 0.0 && increment = " << increment << endl;
+          cout << "err > best_err --> reset/reduce current parameter and rerun" << endl;
         } else {
           //robot = make_robot()
           //x_trajectory, y_trajectory, err = run(robot, p)
@@ -86,13 +93,13 @@ void Twiddle::Tune(double cte, std::vector<double> &p) {
               best_err = err;
               dp.at(i) *= 1.1;
 
-              cout << "err < best_err" << endl;
+              cout << "Now err < best_err" << endl;
           }
           else {
               p.at(i) += dp.at(i);
               dp.at(i) *= 0.9;
 
-              cout << "else" << endl;
+              cout << "err is still larger than best_err, use smaller step size" << endl;
           }
           err = 0.0;
           initialize = true;

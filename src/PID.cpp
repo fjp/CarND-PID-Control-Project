@@ -36,3 +36,8 @@ double PID::TotalError() {
   double total_error = -Kp * p_error - Kd * d_error - Ki * i_error;
   return total_error;
 }
+
+double PID::ThrottleValue() {
+  double throttle_value = -Kp * p_error + 5;
+  return throttle_value;
+}

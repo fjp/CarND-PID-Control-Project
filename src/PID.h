@@ -42,6 +42,8 @@ public:
   */
   double TotalError();
 
+  double ThrottleValue();
+
 };
 
 #endif /* PID_H */
