@@ -37,12 +37,15 @@ int main()
   PID pid;
   Twiddle twiddle = Twiddle();
   // TODO: Initialize the pid variable.
-  std::vector<double> p { std::vector<double>{10.0,0.0,1.0} };
+  // Kp: 0.289955 Ki: 0.02891, Kd: 0.01
+  // Kp: 0.284945 Ki: 0.02891, Kd: 0.0159049
+  // Kp: 0.331 Ki: 0.0158459, Kd: 0.0139125
+  std::vector<double> p { std::vector<double>{0.01,0.01,0.005} };
   pid.Init(p.at(0), p.at(1), p.at(2));
 
   // PID controller for throttle
   PID speed_pid = PID();
-  speed_pid.Init(0.8, 0, 0);
+  speed_pid.Init(10, 0.1, 0.1);
 
 
   // Initialize the timer
@@ -71,7 +74,7 @@ int main()
           pid.Kp = p.at(0);
           pid.Ki = p.at(1);
           pid.Kd = p.at(2);
-          if (abs(cte) > 2.5) {
+          if (abs(cte) > 2.6) {
             twiddle.Restart(ws);
             pid.Init(p.at(0), p.at(1), p.at(2));
             //std::cout << "Kp " << p.at(0) << "Ki " << p.at(1) << "Kd " << p.at(2)  << std::endl;
@@ -99,10 +102,10 @@ int main()
 
 
           // compute new throttle
-          double target_speed = 5;
+          double target_speed = 30;
           speed_pid.UpdateError(speed - target_speed, dt);
-          double throttle_value  = speed_pid.ThrottleValue();
-          std::cout << "Throttle " << throttle_value << std::endl;
+          double throttle_value  = speed_pid.ThrottleValue(target_speed);
+          //std::cout << "Throttle " << throttle_value << std::endl;
 
           // DEBUG
           //std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;

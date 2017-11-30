@@ -42,7 +42,7 @@ public:
   */
   double TotalError();
 
-  double ThrottleValue();
+  double ThrottleValue(double desired_velocity);
 
 };
 

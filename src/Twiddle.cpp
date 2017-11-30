@@ -16,7 +16,7 @@ Twiddle::Twiddle() : p(3) {
 
   err = 0.0;
 
-  tolerance = 0.2;
+  tolerance = 0.008;
   it = 0;
   step = 0;
   iterations = 200;
@@ -60,7 +60,8 @@ void Twiddle::Tune(double cte, std::vector<double> &p) {
 
   if (step > iterations) {
     // while sum(dp) > tol
-    double sum = std::accumulate(dp.begin(), dp.end(), 0, plus<double>());
+    //double sum = std::accumulate(dp.begin(), dp.end(), 0, plus<double>());
+    double sum = dp.at(0) + dp.at(1) + dp.at(2);
     cout << "Sum " << sum << endl;
     if (sum > tolerance) {
       cout << "Iteration " << it << ", best error = " << best_err << endl;
@@ -107,6 +108,7 @@ void Twiddle::Tune(double cte, std::vector<double> &p) {
       }
     }
     it += 1;
+    std::cout << "Kp: " << p.at(0) << " Ki: " << p.at(1) << ", Kd: " << p.at(2)  << std::endl;
   }
 
 }

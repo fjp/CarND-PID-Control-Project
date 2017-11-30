@@ -37,7 +37,7 @@ double PID::TotalError() {
   return total_error;
 }
 
-double PID::ThrottleValue() {
-  double throttle_value = -Kp * p_error + 5;
+double PID::ThrottleValue(double desired_velocity) {
+  double throttle_value = -Kp * p_error + desired_velocity;
   return throttle_value;
 }
