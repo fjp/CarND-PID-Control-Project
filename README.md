@@ -1,27 +1,6 @@
 # CarND-Controls-PID
 Self-Driving Car Engineer Nanodegree Program
 
-
-# PID parameters
-
-P is the proportinal part of the controller which penalizes deviations from the center lane.
-I is the integral part and is used to reduce the steady offset errors. This part is also refered to look in the past.
-D is the differential part, which penalizes strong changes in the cross track error. Therefore it compensates "future" errors.
-
-# PID tuning
-
-The parameters were tuned manually, starting with the P component. Therfore this term was increased until the
-vehicle stayed in the center of the lane. Furthermore it was kept small enought to avoid instable behavior.
-Afterwards the D term was increased slightly and was kept low to avoid oscillating behavior of the steering.
-Finally the I component was increased until the cross track error was reduced further.
-
-For fine tuning, the taught twiddle algorithm from the udacity lessons was used.
-This led to the following parameters of the pid controller.
-
-Kp: 0.22 Ki: 0.0189, Kd: 0.0058165
-
-Furthermore the throttle is controlled by another P controller which sets the speed to 35 mph and slows down if the cross track error gets too large.
-
 ---
 
 ## Dependencies
