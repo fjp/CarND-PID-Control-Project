@@ -6,17 +6,17 @@ D is the differential gain, which penalizes strong changes in the cross track er
 
 # PID tuning
 
-The parameters were tuned manually, starting with the P component. Therfore this term was increased until the
-vehicle stayed in the center of the lane. Furthermore it was kept small enought to avoid instable behavior.
-Afterwards the D term was increased slightly and was kept low to avoid oscillating behavior of the steering.
+The parameters were tuned manually, starting with the P component. This term was increased until the
+vehicle stayed in the center of the lane with only having slight overshoot. Furthermore it was kept small enought to avoid instable behavior.
+Afterwards the D gain was increased slightly and was kept low to avoid oscillating behavior of the steering.
 Finally the I component was increased until the cross track error was reduced further.
 
-For fine tuning, the taught twiddle algorithm from the udacity lessons was used.
+For fine tuning, the twiddle algorithm from the udacity lessons was used.
 This led to the following parameters of the pid controller.
 
-Kp: 0.22 Ki: 0.0189, Kd: 0.0058165
+Kp: 0.141 Ki: 0.0003091, Kd: 0.00176
 
-Furthermore the throttle is controlled by another P controller which sets the speed to 35 mph and slows down if the cross track error gets too large.
+Furthermore the throttle is controlled by another PID controller which sets the speed to 40 mph and slows down if the cross track error gets too large.
 
 # Additional reading
 

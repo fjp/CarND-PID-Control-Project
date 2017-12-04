@@ -16,7 +16,7 @@ Twiddle::Twiddle() : p(3) {
 
   err = 0.0;
 
-  tolerance = 0.008;
+  tolerance = 0.001;
   it = 0;
   step = 0;
   iterations = 200;
@@ -24,6 +24,7 @@ Twiddle::Twiddle() : p(3) {
 
   initialize = true;
   increment = true;
+  finish = false;
 }
 
 Twiddle::~Twiddle() {}
@@ -58,7 +59,7 @@ void Twiddle::Tune(double cte, std::vector<double> &p) {
   err += cte*cte;
   step++;
 
-  if (step > iterations) {
+  if (step > iterations && !finish) {
     // while sum(dp) > tol
     //double sum = std::accumulate(dp.begin(), dp.end(), 0, plus<double>());
     double sum = dp.at(0) + dp.at(1) + dp.at(2);
@@ -106,9 +107,15 @@ void Twiddle::Tune(double cte, std::vector<double> &p) {
           initialize = true;
         }
       }
+    } else {
+      finish = true;
+      std::cout << "Twiddle finished and found the following optimal parameters:" << std::endl;
+      std::cout << "Kp: " << p.at(0) << " Ki: " << p.at(1) << ", Kd: " << p.at(2)  << std::endl;
     }
-    it += 1;
-    std::cout << "Kp: " << p.at(0) << " Ki: " << p.at(1) << ", Kd: " << p.at(2)  << std::endl;
+    if (!finish) {
+      it += 1;
+      std::cout << "Kp: " << p.at(0) << " Ki: " << p.at(1) << ", Kd: " << p.at(2)  << std::endl;
+    }
   }
 
 }

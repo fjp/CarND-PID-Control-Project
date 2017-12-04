@@ -40,7 +40,12 @@ int main()
   // Kp: 0.289955 Ki: 0.02891, Kd: 0.01
   // Kp: 0.284945 Ki: 0.02891, Kd: 0.0159049
   // Kp: 0.331 Ki: 0.0158459, Kd: 0.0139125
-  std::vector<double> p { std::vector<double>{0.01,0.01,0.005} };
+  // Kp: 0.171415 Ki: 0.001199, Kd: 0.008
+  // Kp: 0.141 Ki: 0.0001989, Kd: 0.0019
+  // 0.14,0.0001,0.002
+  // Kp: 0.142802 Ki: 0.00014, Kd: 0.00171
+  // Kp: 0.141 Ki: 0.0003391, Kd: 0.00176
+  std::vector<double> p { std::vector<double>{0.14,0.00012,0.00175} };
   pid.Init(p.at(0), p.at(1), p.at(2));
 
   // PID controller for throttle
@@ -102,7 +107,7 @@ int main()
 
 
           // compute new throttle
-          double target_speed = 30;
+          double target_speed = 40;
           speed_pid.UpdateError(speed - target_speed, dt);
           double throttle_value  = speed_pid.ThrottleValue(target_speed);
           //std::cout << "Throttle " << throttle_value << std::endl;

@@ -22,6 +22,7 @@ void PID::Init(double Kp, double Ki, double Kd) {
 }
 
 void PID::UpdateError(double cte, double dt) {
+  //cout << dt << endl;
   d_error = (cte - p_error)/dt;
   p_error = cte;
   //cout << "p_error" << p_error << endl;
@@ -38,6 +39,6 @@ double PID::TotalError() {
 }
 
 double PID::ThrottleValue(double desired_velocity) {
-  double throttle_value = -Kp * p_error + desired_velocity;
+  double throttle_value =  -Kp * p_error - Kd * d_error - Ki * i_error + desired_velocity;
   return throttle_value;
 }
